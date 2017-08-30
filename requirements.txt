@@ -1,0 +1,9 @@
+cryptography==1.8.1
+Flask==0.12
+Flask-Migrate==2.0.3
+Flask-Script==2.0.5
+Flask-SQLAlchemy==2.2
+MySQL-python==1.2.5
+pyOpenSSL==0.14
+requests==2.9.1
+SQLAlchemy==1.0.13
