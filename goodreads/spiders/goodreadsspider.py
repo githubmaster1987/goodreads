@@ -223,11 +223,11 @@ class GoodreadsspiderSpider(scrapy.Spider):
             "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
         }
 
-        test_url = "https://www.goodreads.com/book/show/25307.No_god_but_God"
-        req = self.set_proxies(test_url, self.parse_book_detail, headers)
-        req.meta['bookUrl'] = test_url
-        yield req
-        return
+        # test_url = "https://www.goodreads.com/book/show/25307.No_god_but_God"
+        # req = self.set_proxies(test_url, self.parse_book_detail, headers)
+        # req.meta['bookUrl'] = test_url
+        # yield req
+        # return
 
         print "************************************"
         print "Remain = ", len(book_url_list)
