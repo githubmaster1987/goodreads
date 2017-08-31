@@ -567,7 +567,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
                 author_temp_div = author_div.xpath(".//span")
 
                 if len(author_temp_div) > 0:
-                    item["AboutAuthor"] = author_temp_div.xpath("text()").extract_first().strip().encode("utf8")
+                    if author_temp_div.xpath("text()").extract_first():
+                        item["AboutAuthor"] = author_temp_div.xpath("text()").extract_first().strip().encode("utf8")
         else:
             error_item["type"].append( "AboutAuthor") 
         
