@@ -29,7 +29,6 @@ class GoodreadsspiderSpider(scrapy.Spider):
         'https://www.goodreads.com/shelf/show/business',
     ]
 
-    url_csv_file_name = ""
     error_url_csv_file_name = ""
 
     proxy_lists = proxylist.proxies
@@ -61,7 +60,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
         self.category_index = category
         self.page_no = page_no
         self.category_url = self.category_urls[int(self.category_index)]
-        self.url_csv_file_name = "url_{}.csv".format(self.category_index)
+
         self.error_url_csv_file_name = "error_url_{}.csv".format(self.category_index)
         self.method = method
 
@@ -141,11 +140,6 @@ class GoodreadsspiderSpider(scrapy.Spider):
         yield req
 
     def call_category_url(self, response):
-        with open(self.url_csv_file_name, 'w') as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(["url", "title"])
-
-
         login_field = response.xpath("//ul[@class='siteHeader__personal']")
 
         # with open("response.html", 'w') as f:
@@ -229,11 +223,11 @@ class GoodreadsspiderSpider(scrapy.Spider):
             "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
         }
 
-        # test_url = "https://www.goodreads.com/book/show/1824.The_Men_Who_Stare_at_Goats"
-        # req = self.set_proxies(test_url, self.parse_book_detail, headers)
-        # req.meta['bookUrl'] = test_url
-        # yield req
-        # return
+        test_url = "https://www.goodreads.com/book/show/25307.No_god_but_God"
+        req = self.set_proxies(test_url, self.parse_book_detail, headers)
+        req.meta['bookUrl'] = test_url
+        yield req
+        return
 
         print "************************************"
         print "Remain = ", len(book_url_list)
@@ -265,8 +259,13 @@ class GoodreadsspiderSpider(scrapy.Spider):
         # try:
         item = GoodreadsItem()
         item["BookURL"] = response.url
-        item["Title"] =  response.xpath("//h1[@id='bookTitle']/text()").extract_first().strip().encode("utf8")
-        
+
+        title_div = response.xpath("//h1[@id='bookTitle']")
+        if len(title_div) > 0:
+            item["Title"] =  title_div.xpath("text()").extract_first().strip().encode("utf8")
+        else:
+            return
+
         author_div =  response.xpath("//div[@id='bookAuthors']//a[@class='authorName']/span")
         if len(author_div) > 0:
             item["Author"] = author_div.xpath("text()").extract_first().strip().encode("utf8")
@@ -371,7 +370,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
             try:
                 item["PublishDate"] = re.search("Published[\s]*(.*?)[\s]*by", detail_div_str, re.I|re.S|re.M).group(1)
             except:
-                item["PublishDate"] = re.search("Published[\s]*(.*)", a, re.I|re.S|re.M).group(1)
+                item["PublishDate"] = re.search("Published[\s]*(.*)", detail_div_str, re.I|re.S|re.M).group(1)
             
             try:                
                 item["Publisher"] = re.search("by[\s]*(.*)", detail_div_str, re.I|re.S|re.M).group(1)
@@ -548,7 +547,14 @@ class GoodreadsspiderSpider(scrapy.Spider):
             non_author_div = author_div.xpath(".//span[contains(@style, 'display:none')]")
 
             if len(non_author_div) > 0:
-                item["AboutAuthor"] = non_author_div.xpath("text()").extract_first().strip().encode("utf8")
+                author_str_list = []
+                
+                for non_author_item in non_author_div.xpath(".//text()").extract():
+                    temp_str = non_author_item.strip().encode("utf8")
+                    
+                    author_str_list.append(temp_str)
+                
+                item["AboutAuthor"] = " ".join(author_str_list)
             else:
                 item["AboutAuthor"] = author_div.xpath(".//span/text()").extract_first().strip().encode("utf8")
         else:
