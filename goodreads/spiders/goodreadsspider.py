@@ -201,18 +201,18 @@ class GoodreadsspiderSpider(scrapy.Spider):
                         print e
                         pass
 
-        # if self.page_no <= self.total_cnt:
-        #     self.page_no = self.page_no + 1  
+        if self.page_no <= int(self.total_cnt / 50):
+            self.page_no = self.page_no + 1  
 
-        #     headers = {
-        #         "Host": "www.goodreads.com",
-        #         "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
-        #     }
+            headers = {
+                "Host": "www.goodreads.com",
+                "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
+            }
 
-        #     page_url = self.category_url + "?page=" + str(self.page_no)
-        #     req = self.set_proxies(page_url, self.parse_category, headers)
+            page_url = self.category_url + "?page=" + str(self.page_no)
+            req = self.set_proxies(page_url, self.parse_category, headers)
 
-        #     yield req
+            yield req
 
     def parse_book_url(self, response):
         book_info_url_list = db.session.query(BookInformation.book_url).filter(BookInformation.book_categoryurl == self.category_url)
