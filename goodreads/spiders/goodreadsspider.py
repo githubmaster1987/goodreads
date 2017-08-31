@@ -271,8 +271,12 @@ class GoodreadsspiderSpider(scrapy.Spider):
             item["Author"] = author_div.xpath("text()").extract_first().strip().encode("utf8")
         else:
             error_item["type"].append( "Author")
-       
-        item["Cover"] = response.xpath("//img[@id='coverImage']/@src").extract_first().strip().encode("utf8")
+        
+        item["Cover"] = ""
+        try:
+            item["Cover"] = response.xpath("//img[@id='coverImage']/@src").extract_first().strip().encode("utf8")
+        except:
+            item["Cover"] = response.xpath("//div[@class='noCoverMediumContainer']/img/@src").extract_first().strip().encode("utf8")
 
         description_container =  response.xpath("//div[@id='descriptionContainer']/div[@id='description']")
 
@@ -560,7 +564,10 @@ class GoodreadsspiderSpider(scrapy.Spider):
                 
                 item["AboutAuthor"] = " ".join(author_str_list)
             else:
-                item["AboutAuthor"] = author_div.xpath(".//span/text()").extract_first().strip().encode("utf8")
+                author_temp_div = author_div.xpath(".//span")
+
+                if len(author_temp_div) > 0:
+                    item["AboutAuthor"] = author_temp_div.xpath("text()").extract_first().strip().encode("utf8")
         else:
             error_item["type"].append( "AboutAuthor") 
         
