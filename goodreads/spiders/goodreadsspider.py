@@ -229,8 +229,9 @@ class GoodreadsspiderSpider(scrapy.Spider):
             "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
         }
 
-        # test_url = "https://www.goodreads.com/book/show/10534.The_Art_of_War"
+        # test_url = "https://www.goodreads.com/book/show/1824.The_Men_Who_Stare_at_Goats"
         # req = self.set_proxies(test_url, self.parse_book_detail, headers)
+        # req.meta['bookUrl'] = test_url
         # yield req
         # return
 
@@ -367,8 +368,15 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
         if len(details_div) > 0:
             detail_div_str = details_div[1].xpath("text()").extract_first().strip().encode("utf8").replace("\n", "")
-            item["PublishDate"] = re.search("Published[\s]*(.*?)[\s]*by", detail_div_str, re.I|re.S|re.M).group(1)
-            item["Publisher"] = re.search("by[\s]*(.*)", detail_div_str, re.I|re.S|re.M).group(1)
+            try:
+                item["PublishDate"] = re.search("Published[\s]*(.*?)[\s]*by", detail_div_str, re.I|re.S|re.M).group(1)
+            except:
+                item["PublishDate"] = re.search("Published[\s]*(.*)", a, re.I|re.S|re.M).group(1)
+            
+            try:                
+                item["Publisher"] = re.search("by[\s]*(.*)", detail_div_str, re.I|re.S|re.M).group(1)
+            except:
+                pass
 
             try:
                 first_published_str = details_div[1].xpath("nobr/text()").extract_first().strip().encode("utf8")
@@ -422,7 +430,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
             item["EditionLanguage"] = ""
             if edition_language_div:
-                item["EditionLanguage"] =edition_language_div.xpath(".//div[@class='infoBoxRowItem']/text()").extract_first().strip().encode("utf8")
+                if edition_language_div.xpath(".//div[@class='infoBoxRowItem']/text()").extract_first():
+                    item["EditionLanguage"] =edition_language_div.xpath(".//div[@class='infoBoxRowItem']/text()").extract_first().strip().encode("utf8")
             else:
                 error_item["type"].append( "EditionLanguage")
             
@@ -478,7 +487,11 @@ class GoodreadsspiderSpider(scrapy.Spider):
             error_item["type"].append( "BooksByAuthor")
 
         bookRightContainer = response.xpath("//div[@class='rightContainer']/div[contains(@class, ' clearFloats')]")
+
+
         if len(bookRightContainer) > 0:
+            item["QuotesMoreUrl"] = ""
+
             more_quotes_link_div = bookRightContainer.xpath(".//a[(@class='actionLink') and contains(text(), 'More quotes')]")
             if len(more_quotes_link_div) > 0:
                 more_quotes_link = response.urljoin(more_quotes_link_div.xpath("@href").extract_first().strip())
