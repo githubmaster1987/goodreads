@@ -223,7 +223,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
             "If-None-Match": 'W/"345591447a249cd038fa193c6ad05808"'
         }
 
-        # test_url = "https://www.goodreads.com/book/show/25307.No_god_but_God"
+        # test_url = "https://www.goodreads.com/book/show/9793361-the-decision-book"
         # req = self.set_proxies(test_url, self.parse_book_detail, headers)
         # req.meta['bookUrl'] = test_url
         # yield req
@@ -374,7 +374,12 @@ class GoodreadsspiderSpider(scrapy.Spider):
         item["Publisher"] = ""
 
         if len(details_div) > 0:
-            detail_div_str = details_div[1].xpath("text()").extract_first().strip().encode("utf8").replace("\n", "")
+            if len(details_div) == 1:
+                detail_div_obj = details_div[0]
+            else:
+                detail_div_obj = details_div[1]
+                
+            detail_div_str = detail_div_obj.xpath("text()").extract_first().strip().encode("utf8").replace("\n", "")
             try:
                 item["PublishDate"] = re.search("Published[\s]*(.*?)[\s]*by", detail_div_str, re.I|re.S|re.M).group(1)
             except:
@@ -386,7 +391,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
                 pass
 
             try:
-                first_published_str = details_div[1].xpath("nobr/text()").extract_first().strip().encode("utf8")
+                first_published_str = detail_div_obj.xpath("nobr/text()").extract_first().strip().encode("utf8")
                 item["FirstPublished"] = re.search("first[\s]*published[\s]*(.*?)\)", first_published_str, re.I|re.S|re.M).group(1)
             except:
                 error_item["type"].append( "FirstPublished")
