@@ -334,24 +334,28 @@ class GoodreadsspiderSpider(scrapy.Spider):
         else:
             error_item["type"].append( "Format")
 
+        item["Pages"] = ""
         pages_div = response.xpath("//div[@id='details']//span[@itemprop='numberOfPages']")
         if len(pages_div) > 0:
             item["Pages"] = pages_div.xpath("text()").extract_first().strip().encode("utf8").replace(" pages", "")
         else:
             error_item["type"].append( "Pages")
 
+        item["AverageRating"] = ""
         average_rating_div = response.xpath("//div[@id='bookMeta']/span[@class='value rating']/span[@class='average']")
         if len(average_rating_div) > 0:
             item["AverageRating"] = average_rating_div.xpath("text()").extract_first().strip().encode("utf8")
         else:
             error_item["type"].append( "AverageRating")
 
+        item["Ratings"] = ""
         rating_div = response.xpath("//div[@id='bookMeta']//span[@class='votes value-title']")
         if len(rating_div) > 0:
             item["Ratings"] = rating_div.xpath("text()").extract_first().strip().encode("utf8")
         else:
             error_item["type"].append( "Ratings")
 
+        item["Reviews"] = ""
         review_div = response.xpath("//div[@id='bookMeta']//span[@class='count value-title']")
         if len(review_div) > 0:
             item["Reviews"] = review_div.xpath("text()").extract_first().strip().encode("utf8")
