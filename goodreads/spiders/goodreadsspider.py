@@ -31,6 +31,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
     total_page_no = []
 
+    total_count = [100000, 100000]
+
     error_url_csv_file_name = ""
 
     proxy_lists = proxylist.proxies
@@ -40,7 +42,6 @@ class GoodreadsspiderSpider(scrapy.Spider):
     method = ''
 
     category_url = ""
-    total_cnt = 0
 
     def set_proxies(self, url, callback, headers=None):
         if headers:
@@ -60,14 +61,14 @@ class GoodreadsspiderSpider(scrapy.Spider):
     def __init__(self, category =0, page_no=0, method='', *args, **kwargs):
         super(GoodreadsspiderSpider, self).__init__(*args, **kwargs)
         self.category_index = int(category)
-        self.page_no = page_no
+        self.page_no = int(page_no)
         self.category_url = self.category_urls[self.category_index]
 
         self.error_url_csv_file_name = "error_url_{}.csv".format(self.category_index)
         self.method = method
 
         for i in range(0, len(self.category_urls)):
-            self.total_page_no.append(0)
+            self.total_page_no.append( self.total_count[i] / 50)
 
         with open(self.error_url_csv_file_name, 'w') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -168,13 +169,13 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
         print "***********Parse Category****************", response.url, self.total_page_no[self.category_index]
         
-        if self.page_no == 1:
-            print "***********Page No************", self.page_no
-            total_cnt_str = response.xpath("//span[(@class='smallText') and contains(text(), 'showing')]/text()").extract_first()
-            self.total_cnt = int(re.search("of[\s]*(.*)\)", total_cnt_str, re.I|re.S|re.M).group(1).replace(",", ""))
+        # if self.page_no == 1:
+            # print "***********Page No************", self.page_no
+            # total_cnt_str = response.xpath("//span[(@class='smallText') and contains(text(), 'showing')]/text()").extract_first()
+            # self.total_cnt = int(re.search("of[\s]*(.*)\)", total_cnt_str, re.I|re.S|re.M).group(1).replace(",", ""))
 
-            self.total_page_no[self.category_index] = self.total_cnt / 50
-            print "Total=", self.total_cnt
+            # self.total_page_no[self.category_index] = self.total_cnt / 50
+            # print "Total=", self.total_cnt
 
         book_listings = response.xpath("//div[@class='elementList']")
 
