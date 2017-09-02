@@ -195,6 +195,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
                         book_url = book_url,
                         book_title = book_title.strip().encode("utf8"),
                         category_url = self.category_url,
+                        page_no = self.page_no
                         )
 
                     try:
