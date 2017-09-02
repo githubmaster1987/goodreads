@@ -61,7 +61,9 @@ class GoodreadsspiderSpider(scrapy.Spider):
     def __init__(self, category =0, page_no=0, method='', *args, **kwargs):
         super(GoodreadsspiderSpider, self).__init__(*args, **kwargs)
         self.category_index = int(category)
-        self.page_no = int(page_no)
+
+        if self.page_no != "":
+            self.page_no = int(page_no)
         self.category_url = self.category_urls[self.category_index]
 
         self.error_url_csv_file_name = "error_url_{}.csv".format(self.category_index)
