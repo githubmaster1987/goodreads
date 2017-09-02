@@ -29,6 +29,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
         'https://www.goodreads.com/shelf/show/business',
     ]
 
+    total_page_no = []
+
     error_url_csv_file_name = ""
 
     proxy_lists = proxylist.proxies
@@ -63,6 +65,9 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
         self.error_url_csv_file_name = "error_url_{}.csv".format(self.category_index)
         self.method = method
+
+        for i in range(0, len(self.category_urls)):
+            self.total_page_no.append(0)
 
         with open(self.error_url_csv_file_name, 'w') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -166,7 +171,10 @@ class GoodreadsspiderSpider(scrapy.Spider):
         if self.page_no == 1:
             total_cnt_str = response.xpath("//span[(@class='smallText') and contains(text(), 'showing')]/text()").extract_first()
             self.total_cnt = int(re.search("of[\s]*(.*)\)", total_cnt_str, re.I|re.S|re.M).group(1).replace(",", ""))
+
+            self.total_page_no[self.category_index] = self.total_cnt / 50
             print "Total=", self.total_cnt
+            print self.total_page_no
 
         book_listings = response.xpath("//div[@class='elementList']")
 
@@ -195,7 +203,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
                         print e
                         pass
 
-        if self.page_no <= int(self.total_cnt / 50):
+        if self.page_no <= self.total_page_no[self.category_index]:
             self.page_no = self.page_no + 1  
 
             headers = {
