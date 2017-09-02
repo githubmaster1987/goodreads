@@ -165,10 +165,10 @@ class GoodreadsspiderSpider(scrapy.Spider):
             yield req
 
     def parse_category(self, response):
-        print "***********Parse Category****************", response.url
-        print "***********Page No************", self.page_no
-
+        print "***********Parse Category****************", response.url, self.page_no, self.total_page_no[self.category_index]
+        
         if self.page_no == 1:
+            print "***********Page No************", self.page_no
             total_cnt_str = response.xpath("//span[(@class='smallText') and contains(text(), 'showing')]/text()").extract_first()
             self.total_cnt = int(re.search("of[\s]*(.*)\)", total_cnt_str, re.I|re.S|re.M).group(1).replace(",", ""))
 
