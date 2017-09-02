@@ -59,9 +59,9 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
     def __init__(self, category =0, page_no=0, method='', *args, **kwargs):
         super(GoodreadsspiderSpider, self).__init__(*args, **kwargs)
-        self.category_index = category
+        self.category_index = int(category)
         self.page_no = page_no
-        self.category_url = self.category_urls[int(self.category_index)]
+        self.category_url = self.category_urls[self.category_index]
 
         self.error_url_csv_file_name = "error_url_{}.csv".format(self.category_index)
         self.method = method
@@ -165,7 +165,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
             yield req
 
     def parse_category(self, response):
-        print "***********Parse Category****************", response.url, self.page_no, self.total_page_no[self.category_index]
+
+        print "***********Parse Category****************", response.url, self.total_page_no[self.category_index]
         
         if self.page_no == 1:
             print "***********Page No************", self.page_no
@@ -174,7 +175,6 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
             self.total_page_no[self.category_index] = self.total_cnt / 50
             print "Total=", self.total_cnt
-            print self.total_page_no
 
         book_listings = response.xpath("//div[@class='elementList']")
 
