@@ -208,7 +208,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
                         pass
 
         # if self.page_no <= self.total_page_no[self.category_index]:
-        if len(book_listings) > 0:
+        if len(book_listings) > 10:
             self.page_no = self.page_no + 1  
 
             headers = {
