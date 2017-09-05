@@ -249,8 +249,8 @@ class GoodreadsspiderSpider(scrapy.Spider):
                 if item == sub_item:
                     exists = True
                     break
-
-            print i, exists
+            if i % 1000 == 0:    
+                print i, exists
             
             if exists == False:
                 url_list.append(item)
