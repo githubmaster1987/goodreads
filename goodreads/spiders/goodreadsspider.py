@@ -169,7 +169,7 @@ class GoodreadsspiderSpider(scrapy.Spider):
 
     def parse_category(self, response):
 
-        print "***********Parse Category****************", response.url, self.total_page_no[self.category_index]
+        print "***********Parse Category****************", response.url
         
         # if self.page_no == 1:
             # print "***********Page No************", self.page_no
@@ -222,11 +222,10 @@ class GoodreadsspiderSpider(scrapy.Spider):
             yield req
 
     def parse_book_url(self, response):
-        book_info_url_list = db.session.query(BookInformation.book_url).filter(BookInformation.book_categoryurl == self.category_url)
+        book_info_url_list = db.session.query(BookInformation.book_url).filter(BookInformation.book_categoryurl == self.category_url).all()
         
-        query = db.session.query(BookUrl).filter(BookUrl.category_url == self.category_url)
-        book_url_list = query.filter(~BookUrl.book_url.in_(book_info_url_list)).all()
-        
+        book_url_list = db.session.query(BookUrl.book_url).filter(BookUrl.category_url == self.category_url).all()
+            
         headers = {
             "Host": "www.goodreads.com",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0",
@@ -242,13 +241,30 @@ class GoodreadsspiderSpider(scrapy.Spider):
         # yield req
         # return
 
-        print "************************************"
-        print "Remain = ", len(book_url_list)
-        print "Exist = ", len(book_info_url_list.all())
-        
-        for i, input_item in enumerate(book_url_list):
+        url_list = []
+        for i,item in enumerate(book_url_list):
+            exists = False
 
-            url = input_item.book_url
+            for sub_item in book_info_url_list:
+                if item == sub_item:
+                    exists = True
+                    break
+
+            print i, exists
+            
+            if exists == False:
+                url_list.append(item)
+
+        
+
+        print "************************************"
+        print "Total = ", len(book_url_list)
+        print "Exist = ", len(book_info_url_list)
+        print "Remain = ", len(url_list)
+        
+        for i, input_item in enumerate(url_list):
+
+            url = input_item[0]
             
             req = self.set_proxies(url, self.parse_book_detail, headers)
             req.meta["bookUrl"] = url
